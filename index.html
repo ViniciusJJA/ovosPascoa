@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesquisa Ovos de Páscoa 2026 — Procon Tubarão</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F2EC;
+    --surface: #FFFFFF;
+    --surface2: #FAF8F4;
+    --accent: #C8390A;
+    --accent2: #1A3F5C;
+    --accent3: #3D7A5B;
+    --text: #1C1A17;
+    --text2: #6B6560;
+    --text3: #A09A93;
+    --border: #E4DFD8;
+    --shadow: 0 2px 16px rgba(28,26,23,0.07);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--accent2);
+    padding: 28px 40px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(200,57,10,0.18);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    right: 80px; bottom: -80px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header-inner { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; }
+  .header-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+    font-weight: 300;
+  }
+  .header-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 20px;
+  }
+  .hstat { color: rgba(255,255,255,0.5); font-size: 12px; }
+  .hstat strong { display: block; color: #fff; font-size: 22px; font-weight: 600; line-height: 1; margin-bottom: 2px; }
+
+  /* FILTERS */
+  .filters-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .filters-bar label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .filters-bar select, .filters-bar input[type="range"] {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    min-width: 160px;
+  }
+  .filters-bar select:focus { border-color: var(--accent2); }
+  .filter-group { display: flex; align-items: center; gap: 8px; }
+  .filter-sep { width: 1px; height: 28px; background: var(--border); }
+
+  /* MAIN */
+  .main { max-width: 1300px; margin: 0 auto; padding: 32px 40px 60px; }
+
+  /* KPI */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 32px; }
+  .kpi-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi-card.red::after { background: var(--accent); }
+  .kpi-card.blue::after { background: var(--accent2); }
+  .kpi-card.green::after { background: var(--accent3); }
+  .kpi-card.amber::after { background: #D4900A; }
+  .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 8px; }
+  .kpi-value { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--text); line-height: 1; }
+  .kpi-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* CHARTS GRID */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .charts-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .chart-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    position: relative;
+  }
+  .chart-card.full { grid-column: 1 / -1; }
+  .chart-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .chart-sub { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+  .chart-wrap { position: relative; }
+
+  /* HEATMAP */
+  .heatmap-scroll { overflow-x: auto; }
+  .heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    min-width: 700px;
+  }
+  .heatmap-table th {
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text2);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--surface2);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .heatmap-table th.prod-col { text-align: left; min-width: 180px; }
+  .heatmap-table td {
+    padding: 7px 10px;
+    text-align: center;
+    border: 1px solid rgba(228,223,216,0.5);
+    font-weight: 500;
+    font-size: 12px;
+    transition: opacity 0.15s;
+    cursor: default;
+    white-space: nowrap;
+  }
+  .heatmap-table td.prod-name {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 12px;
+    background: var(--surface2);
+    border-right: 2px solid var(--border);
+  }
+  .heatmap-table tr:hover td { opacity: 0.85; }
+  .hm-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .hm-legend-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, #3D7A5B, #E8C84A, #C8390A);
+    max-width: 200px;
+  }
+
+  /* TOP 5 */
+  .top5-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; }
+  .top5-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 18px 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .top5-rank {
+    position: absolute;
+    top: 12px; left: 12px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .top5-rank.r1 { background: #FFD700; color: #7A5700; }
+  .top5-rank.r2 { background: #C0C0C0; color: #444; }
+  .top5-rank.r3 { background: #CD7F32; color: #fff; }
+  .top5-rank.r4, .top5-rank.r5 { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+  .top5-name { font-weight: 700; font-size: 14px; color: var(--accent2); margin: 20px 0 6px; }
+  .top5-avg { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--accent3); }
+  .top5-avg-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .top5-items { font-size: 11px; color: var(--text2); margin-top: 6px; }
+  .top5-saving {
+    display: inline-block;
+    margin-top: 8px;
+    background: #E8F5EE;
+    color: var(--accent3);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-top: 8px;
+  }
+  .section-title span { color: var(--accent); }
+
+  /* CHIP FILTER */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface);
+    color: var(--text2);
+    font-weight: 500;
+  }
+  .chip.active { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+  .chip:hover:not(.active) { border-color: var(--accent2); color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-tag">Procon Tubarão / SC</div>
+    <h1>Pesquisa de Preços<br>Ovos de Páscoa 2026</h1>
+    <p>Pesquisa realizada em 18 de março de 2026 · Departamento de Defesa do Consumidor</p>
+    <div class="header-stats">
+      <div class="hstat"><strong id="stat-produtos">30</strong>Produtos</div>
+      <div class="hstat"><strong>9</strong>Mercados</div>
+      <div class="hstat"><strong id="stat-min">—</strong>Menor preço</div>
+      <div class="hstat"><strong id="stat-max">—</strong>Maior preço</div>
+      <div class="hstat"><strong id="stat-economia">—</strong>Economia máx.</div>
+    </div>
+  </div>
+</div>
+
+<div class="filters-bar">
+  <div class="filter-group">
+    <label>Segmento</label>
+    <select id="seg-filter">
+      <option value="all">Todos os segmentos</option>
+      <option value="ovo">Ovos de Páscoa</option>
+      <option value="barra">Barras 80g</option>
+      <option value="caixa">Caixas de bombom</option>
+      <option value="bis">Bis</option>
+    </select>
+  </div>
+  <div class="filter-sep"></div>
+  <div class="filter-group">
+    <label>Loja</label>
+    <select id="loja-filter">
+      <option value="all">Todas as lojas</option>
+    </select>
+  </div>
+  <div class="filter-sep"></div>
+  <div class="filter-group">
+    <label>Ordenar ranking por</label>
+    <select id="sort-filter">
+      <option value="min">Menor preço</option>
+      <option value="max">Maior preço</option>
+      <option value="spread">Maior variação</option>
+    </select>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card red">
+      <div class="kpi-label">Maior preço encontrado</div>
+      <div class="kpi-value" id="kpi-max">—</div>
+      <div class="kpi-sub" id="kpi-max-sub">—</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Menor preço encontrado</div>
+      <div class="kpi-value" id="kpi-min">—</div>
+      <div class="kpi-sub" id="kpi-min-sub">—</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Maior variação por produto</div>
+      <div class="kpi-value" id="kpi-var">—</div>
+      <div class="kpi-sub" id="kpi-var-sub">—</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">Preço médio geral</div>
+      <div class="kpi-value" id="kpi-avg">—</div>
+      <div class="kpi-sub" id="kpi-avg-sub">por produto</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Ranking + Donut -->
+  <div class="charts-grid" style="grid-template-columns: 2fr 1fr; margin-bottom: 20px;">
+    <div class="chart-card">
+      <div class="chart-title">Ranking de preços por produto</div>
+      <div class="chart-sub">Menor, médio e maior preço encontrado entre os mercados</div>
+      <div class="chart-wrap" style="height: 420px; overflow-y: auto;">
+        <div style="position: relative; height: 420px;">
+          <canvas id="rankingChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Distribuição por segmento</div>
+      <div class="chart-sub">Participação de cada categoria no total de produtos</div>
+      <div class="chart-wrap" style="height: 260px; position: relative;">
+        <canvas id="donutChart"></canvas>
+      </div>
+      <div id="donut-legend" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Linha por loja -->
+  <div class="chart-card" style="margin-bottom: 20px;">
+    <div class="chart-title">Comparação por loja</div>
+    <div class="chart-sub">Preço médio de cada loja por produto selecionado</div>
+    <div class="chip-group" id="produto-chips"></div>
+    <div class="chart-wrap" style="height: 300px; position: relative;">
+      <canvas id="linhaChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ROW 3: Heatmap -->
+  <div class="chart-card" style="margin-bottom: 28px;">
+    <div class="chart-title">Mapa de calor — Preços por produto × loja</div>
+    <div class="chart-sub">Verde = mais barato · Vermelho = mais caro · Cinza = sem dado</div>
+    <div class="heatmap-scroll">
+      <table class="heatmap-table" id="heatmap"></table>
+    </div>
+    <div class="hm-legend">
+      <span>Mais barato</span>
+      <div class="hm-legend-bar"></div>
+      <span>Mais caro</span>
+    </div>
+  </div>
+
+  <!-- TOP 5 -->
+  <div class="section-title">Top 5 <span>mercados mais baratos</span></div>
+  <div class="top5-grid" id="top5"></div>
+
+</div>
+
+<script>
+const LOJAS = ['Komprão','Angeloni','Menegaz','Fort Atacadista','Giassi','Líder Atacadista','Combo','Havan','Americanas'];
+const SEGMENTOS = { 'ovo': 'Ovos de Páscoa', 'barra': 'Barras 80g', 'caixa': 'Caixas Bombom', 'bis': 'Bis' };
+
+const RAW = [
+  {nome:'Alpino 349,5g', seg:'ovo', precos:[79.89,79.99,null,79.90,82.90,70.99,78.90,null,null]},
+  {nome:'Kit Kat 338g', seg:'ovo', precos:[82.99,79.99,null,79.90,82.90,111.99,78.90,null,null]},
+  {nome:'Galak 199g', seg:'ovo', precos:[57.89,56.99,null,57.90,59.90,53.89,56.90,null,null]},
+  {nome:'Prestígio 225g', seg:'ovo', precos:[null,56.99,null,57.90,59.90,53.89,56.90,null,null]},
+  {nome:'Nestle Classic 199g', seg:'ovo', precos:[57.89,56.99,null,57.90,59.90,53.89,56.90,null,null]},
+  {nome:'Ferrero Rocher 225g', seg:'ovo', precos:[114.89,114.99,null,119.89,114.98,112.99,110.90,139.99,114.99]},
+  {nome:'Garoto Talento 350g', seg:'ovo', precos:[79.89,79.99,null,79.90,79.90,79.99,76.90,null,null]},
+  {nome:'Garoto Serenata 217,7g', seg:'ovo', precos:[57.89,56.99,null,57.90,59.90,55.89,56.90,null,null]},
+  {nome:'Garoto Crocante 227g', seg:'ovo', precos:[57.89,56.99,null,57.90,59.90,null,56.90,null,null]},
+  {nome:'Garoto Baton Leite 204g', seg:'ovo', precos:[74.90,66.99,null,66.90,66.90,55.89,65.90,null,null]},
+  {nome:'Lacta ao Leite 157g', seg:'ovo', precos:[49.90,56.99,65.90,49.90,56.98,51.99,51.98,69.99,54.99]},
+  {nome:'Lacta Oreo 239g', seg:'ovo', precos:[null,58.99,69.98,51.90,56.98,61.99,53.98,69.99,56.99]},
+  {nome:'Lacta Favoritos 540g', seg:'ovo', precos:[119.90,119.99,137.90,119.89,124.98,119.98,119.98,149.99,119.99]},
+  {nome:'Lacta Ouro Branco 359g', seg:'ovo', precos:[77.90,82.99,94.90,74.90,82.98,84.99,77.98,99.99,79.99]},
+  {nome:'Lacta Bis Leite 305,4g', seg:'ovo', precos:[75.90,80.99,91.98,72.90,80.98,82.99,75.98,99.99,77.99]},
+  {nome:'Lacta Sonho de Valsa 277g', seg:'ovo', precos:[null,58.99,69.98,51.90,58.98,61.99,53.98,69.99,56.99]},
+  {nome:'Lacta Laka 162g', seg:'ovo', precos:[51.90,56.99,65.99,49.90,56.98,59.99,51.98,69.99,54.99]},
+  {nome:'Lacta Diamante Negro 163g', seg:'ovo', precos:[51.90,56.99,65.98,49.90,56.98,59.99,51.98,69.99,54.99]},
+  {nome:'Lacta DN + Laka 494g', seg:'ovo', precos:[119.90,124.99,137.90,119.89,124.98,119.98,119.98,149.99,119.99]},
+  {nome:'Lacta Barbie 166g', seg:'ovo', precos:[87.90,93.99,105.90,87.89,93.98,94.99,87.98,114.99,89.99]},
+  {nome:'Lacta HotWheels 166g', seg:'ovo', precos:[87.90,93.99,105.90,87.89,89.98,94.99,87.98,114.99,89.99]},
+  {nome:'Kinder 150g', seg:'ovo', precos:[104.89,104.99,105.98,109.89,104.98,104.99,102.98,124.99,104.99]},
+  {nome:'Kinder 100g', seg:'ovo', precos:[79.90,84.90,null,84.90,84.88,84.99,82.98,99.99,84.99]},
+  {nome:'Barra Nestle 80g', seg:'barra', precos:[6.99,10.99,9.98,8.49,7.98,9.19,9.28,9.99,9.99]},
+  {nome:'Barra Lacta 80g', seg:'barra', precos:[8.49,9.49,9.98,8.49,8.08,7.89,7.48,null,8.99]},
+  {nome:'Barra Garoto 80g', seg:'barra', precos:[6.99,8.59,null,6.98,8.58,5.89,6.48,7.99,8.99]},
+  {nome:'Caixa Nestle 251g', seg:'caixa', precos:[12.99,14.99,17.98,14.75,19.98,13.99,19.28,14.99,19.99]},
+  {nome:'Caixa Lacta 250,6g', seg:'caixa', precos:[17.89,14.99,17.98,13.98,19.38,16.99,18.38,19.99,20.99]},
+  {nome:'Caixa Garoto 250g', seg:'caixa', precos:[15.99,14.99,16.99,14.75,18.90,12.88,17.90,18.99,18.99]},
+  {nome:'Bis 100,8g', seg:'bis', precos:[5.79,6.99,6.99,5.78,6.28,6.49,6.48,8.99,8.49]},
+];
+
+const COLORS = {
+  accent: '#C8390A', accent2: '#1A3F5C', accent3: '#3D7A5B',
+  amber: '#D4900A', border: '#E4DFD8',
+  segs: { ovo: '#1A3F5C', barra: '#3D7A5B', caixa: '#C8390A', bis: '#D4900A' }
+};
+
+let rankChart, donutChart, linhaChart;
+let selectedProds = ['Lacta Favoritos 540g','Lacta Ouro Branco 359g','Ferrero Rocher 225g'];
+let activeSegFilter = 'all';
+let activeLoja = 'all';
+let sortBy = 'min';
+
+function vals(p) { return p.precos.filter(v => v !== null); }
+function pMin(p) { return Math.min(...vals(p)); }
+function pMax(p) { return Math.max(...vals(p)); }
+function pAvg(p) { const v = vals(p); return v.reduce((a,b)=>a+b,0)/v.length; }
+function fmt(v) { return 'R$\u00a0' + v.toFixed(2).replace('.',','); }
+
+function filteredData() {
+  let d = RAW;
+  if (activeSegFilter !== 'all') d = d.filter(p => p.seg === activeSegFilter);
+  return d;
+}
+
+// Populate lojas select
+const lojaSelect = document.getElementById('loja-filter');
+LOJAS.forEach((l,i) => {
+  const o = document.createElement('option'); o.value = i; o.textContent = l; lojaSelect.appendChild(o);
+});
+
+// Populate chips
+function buildChips() {
+  const container = document.getElementById('produto-chips');
+  container.innerHTML = '';
+  filteredData().slice(0,10).forEach(p => {
+    const c = document.createElement('span');
+    c.className = 'chip' + (selectedProds.includes(p.nome) ? ' active' : '');
+    c.textContent = p.nome;
+    c.onclick = () => {
+      if (selectedProds.includes(p.nome)) {
+        if (selectedProds.length > 1) selectedProds = selectedProds.filter(x => x !== p.nome);
+      } else {
+        selectedProds.push(p.nome);
+      }
+      buildChips();
+      updateLinha();
+    };
+    container.appendChild(c);
+  });
+}
+
+// KPIs
+function updateKPIs() {
+  const d = filteredData();
+  let mn = Infinity, mx = -Infinity, mxProd = '', mxLoja = '', mnProd = '', mnLoja = '';
+  let all = [];
+  d.forEach(p => {
+    p.precos.forEach((v,i) => {
+      if (v === null) return;
+      all.push(v);
+      if (v < mn) { mn = v; mnProd = p.nome; mnLoja = LOJAS[i]; }
+      if (v > mx) { mx = v; mxProd = p.nome; mxLoja = LOJAS[i]; }
+    });
+  });
+  let maxVar = 0, maxVarProd = '';
+  d.forEach(p => { const sp = pMax(p)-pMin(p); if(sp>maxVar){maxVar=sp;maxVarProd=p.nome;} });
+  const avg = all.reduce((a,b)=>a+b,0)/all.length;
+
+  document.getElementById('kpi-max').textContent = fmt(mx);
+  document.getElementById('kpi-max-sub').textContent = mxProd + ' · ' + mxLoja;
+  document.getElementById('kpi-min').textContent = fmt(mn);
+  document.getElementById('kpi-min-sub').textContent = mnProd + ' · ' + mnLoja;
+  document.getElementById('kpi-var').textContent = fmt(maxVar);
+  document.getElementById('kpi-var-sub').textContent = maxVarProd;
+  document.getElementById('kpi-avg').textContent = fmt(avg);
+
+  document.getElementById('stat-min').textContent = fmt(mn);
+  document.getElementById('stat-max').textContent = fmt(mx);
+  document.getElementById('stat-economia').textContent = fmt(maxVar);
+  document.getElementById('stat-produtos').textContent = d.length;
+}
+
+// RANKING CHART
+function updateRanking() {
+  let d = filteredData();
+  if (sortBy === 'min') d = d.slice().sort((a,b) => pMin(a)-pMin(b));
+  else if (sortBy === 'max') d = d.slice().sort((a,b) => pMax(b)-pMax(a));
+  else d = d.slice().sort((a,b) => (pMax(b)-pMin(b))-(pMax(a)-pMin(a)));
+
+  const labels = d.map(p => p.nome.length > 22 ? p.nome.slice(0,22)+'…' : p.nome);
+  const minData = d.map(pMin);
+  const maxData = d.map(pMax);
+  const avgData = d.map(pAvg);
+
+  const wrap = document.querySelector('#rankingChart').parentElement;
+  const h = Math.max(420, d.length * 28 + 60);
+  wrap.style.height = h + 'px';
+
+  if (rankChart) rankChart.destroy();
+  rankChart = new Chart(document.getElementById('rankingChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Menor', data: minData, backgroundColor: 'rgba(61,122,91,0.85)', borderRadius: 4, barPercentage: 0.5 },
+        { label: 'Médio', data: avgData, backgroundColor: 'rgba(26,63,92,0.7)', borderRadius: 4, barPercentage: 0.5 },
+        { label: 'Maior', data: maxData, backgroundColor: 'rgba(200,57,10,0.8)', borderRadius: 4, barPercentage: 0.5 },
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.x)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#F0ECE6' },
+          ticks: { callback: v => 'R$' + v, font: { size: 11 }, color: '#6B6560' }
+        },
+        y: { ticks: { font: { size: 11 }, color: '#1C1A17' }, grid: { display: false } }
+      }
+    }
+  });
+  // custom legend
+}
+
+// DONUT
+function updateDonut() {
+  const counts = { ovo: 0, barra: 0, caixa: 0, bis: 0 };
+  filteredData().forEach(p => counts[p.seg]++);
+  const labels = Object.keys(counts).map(k => SEGMENTOS[k]);
+  const data = Object.values(counts);
+  const colors = ['#1A3F5C','#3D7A5B','#C8390A','#D4900A'];
+
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + ' produto(s)' } } }
+    }
+  });
+  const leg = document.getElementById('donut-legend');
+  leg.innerHTML = labels.map((l,i) => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:12px;color:#6B6560">
+    <span style="width:10px;height:10px;border-radius:2px;background:${colors[i]};flex-shrink:0;display:inline-block"></span>
+    <span>${l}</span><span style="margin-left:auto;font-weight:600;color:#1C1A17">${data[i]}</span>
+  </div>`).join('');
+}
+
+// LINHA
+function updateLinha() {
+  const prods = filteredData().filter(p => selectedProds.includes(p.nome));
+  if (!prods.length) return;
+  const lojaColors = ['#1A3F5C','#C8390A','#3D7A5B','#D4900A','#8B4A8F','#1A8A9F','#D45F00','#555','#B0A090'];
+  let datasets;
+  if (activeLoja !== 'all') {
+    const li = parseInt(activeLoja);
+    datasets = prods.map((p,i) => ({
+      label: p.nome,
+      data: LOJAS.map((_,j) => j===li ? (p.precos[j]) : null),
+      borderColor: lojaColors[i % lojaColors.length],
+      backgroundColor: lojaColors[i % lojaColors.length] + '22',
+      pointRadius: 5, tension: 0.3, spanGaps: false
+    }));
+  } else {
+    datasets = prods.map((p,i) => ({
+      label: p.nome.length > 25 ? p.nome.slice(0,25)+'…' : p.nome,
+      data: p.precos,
+      borderColor: lojaColors[i % lojaColors.length],
+      backgroundColor: lojaColors[i % lojaColors.length] + '22',
+      pointRadius: 5, tension: 0.3, spanGaps: true
+    }));
+  }
+  if (linhaChart) linhaChart.destroy();
+  linhaChart = new Chart(document.getElementById('linhaChart'), {
+    type: 'line',
+    data: { labels: LOJAS, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y !== null ? fmt(ctx.parsed.y) : '—') } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 11 }, color: '#6B6560', maxRotation: 30 }, grid: { color: '#F0ECE6' } },
+        y: { ticks: { callback: v => 'R$' + v, font: { size: 11 }, color: '#6B6560' }, grid: { color: '#F0ECE6' } }
+      }
+    }
+  });
+}
+
+// HEATMAP
+function buildHeatmap() {
+  const d = filteredData();
+  const table = document.getElementById('heatmap');
+  // find global min/max
+  let mn = Infinity, mx = -Infinity;
+  d.forEach(p => p.precos.forEach(v => { if(v!==null){if(v<mn)mn=v;if(v>mx)mx=v;} }));
+
+  function heatColor(v) {
+    if (v === null) return { bg: '#F5F2EC', text: '#C0BBA8', val: '—' };
+    const t = (v - mn) / (mx - mn);
+    const r = Math.round(61 + (200-61)*t);
+    const g = Math.round(122 + (57-122)*t);
+    const b = Math.round(91 + (10-91)*t);
+    const luma = 0.299*r + 0.587*g + 0.114*b;
+    return { bg: `rgb(${r},${g},${b})`, text: luma > 128 ? '#1C1A17' : '#fff', val: fmt(v) };
+  }
+
+  let html = '<thead><tr><th class="prod-col">Produto</th>';
+  LOJAS.forEach(l => { html += `<th>${l.replace(' ','<br>')}</th>`; });
+  html += '</tr></thead><tbody>';
+  d.forEach(p => {
+    html += `<tr><td class="prod-name">${p.nome}</td>`;
+    p.precos.forEach(v => {
+      const c = heatColor(v);
+      html += `<td style="background:${c.bg};color:${c.text};" title="${v !== null ? fmt(v) : 'Sem dado'}">${c.val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// TOP 5
+function buildTop5() {
+  const scores = LOJAS.map((l,i) => {
+    const vals = filteredData().map(p => p.precos[i]).filter(v => v !== null);
+    if (!vals.length) return { loja: l, avg: Infinity, count: 0 };
+    return { loja: l, avg: vals.reduce((a,b)=>a+b,0)/vals.length, count: vals.length };
+  });
+  scores.sort((a,b) => a.avg - b.avg);
+  const maxAvg = scores.filter(s => s.count > 0).reduce((a,b) => b.avg > a ? b.avg : a, 0);
+
+  const container = document.getElementById('top5');
+  const rankCls = ['r1','r2','r3','r4','r5'];
+  container.innerHTML = scores.slice(0,5).map((s,i) => {
+    const saving = s.count > 0 ? ((maxAvg - s.avg) / maxAvg * 100) : 0;
+    return `<div class="top5-card">
+      <div class="top5-rank ${rankCls[i]}">${i+1}</div>
+      <div class="top5-name">${s.loja}</div>
+      <div class="top5-avg">${s.count ? fmt(s.avg) : '—'}</div>
+      <div class="top5-avg-label">preço médio</div>
+      <div class="top5-items">${s.count} produtos analisados</div>
+      ${i > 0 && s.count ? `<div class="top5-saving">+${saving.toFixed(1)}% vs. 1º</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderAll() {
+  updateKPIs();
+  updateRanking();
+  updateDonut();
+  buildChips();
+  updateLinha();
+  buildHeatmap();
+  buildTop5();
+}
+
+document.getElementById('seg-filter').addEventListener('change', e => {
+  activeSegFilter = e.target.value;
+  selectedProds = filteredData().slice(0,3).map(p => p.nome);
+  renderAll();
+});
+document.getElementById('loja-filter').addEventListener('change', e => { activeLoja = e.target.value; updateLinha(); });
+document.getElementById('sort-filter').addEventListener('change', e => { sortBy = e.target.value; updateRanking(); });
+
+selectedProds = RAW.slice(0,3).map(p => p.nome);
+renderAll();
+</script>
+</body>
+</html>
